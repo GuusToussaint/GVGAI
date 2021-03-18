@@ -57,7 +57,7 @@ public class SingleTreeNode
 
         int remainingLimit = 5;
         //While there is still enough time
-        while(remaining > remainingLimit){
+        while(remaining > 2 * avgTimeTaken && remaining > remainingLimit){
             StateObservation state = rootState.copy();
 
             ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
@@ -117,16 +117,14 @@ public class SingleTreeNode
         for (int i = 0; i < children.length; i++)
         {
             double hvVal = children[i].totValue;
-            double childValue =  hvVal / (children[i].nVisits + this.epsilon);
+            double childValue =  hvVal / children[i].nVisits;
 
             //"Number of wins" estimation
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
             //System.out.println("norm child value: " + childValue);
 
             double uctValue = childValue +
-                    K * Math.sqrt(Math.log(this.nVisits + 1) / (children[i].nVisits + this.epsilon));
-
-            //uctValue = Utils.noise(uctValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
+                    K * Math.sqrt(Math.log(this.nVisits + 1) / (children[i].nVisits));
 
             // small sampleRandom numbers: break ties in unexpanded nodes
             if (uctValue > bestValue || (uctValue == bestValue && this.m_rnd.nextBoolean())) {
@@ -172,18 +170,17 @@ public class SingleTreeNode
     }
 
     public double value(StateObservation a_gameState) {
-
-        boolean gameOver = a_gameState.isGameOver();
-        Types.WINNER win = a_gameState.getGameWinner();
-        double rawScore = a_gameState.getGameScore();
-
-        if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-            rawScore += HUGE_NEGATIVE;
-
-        if(gameOver && win == Types.WINNER.PLAYER_WINS)
-            rawScore += HUGE_POSITIVE;
-
-        return rawScore;
+        if(a_gameState.isGameOver())
+        {
+            if (a_gameState.getGameWinner() == Types.WINNER.PLAYER_WINS)
+            {
+                return HUGE_POSITIVE;
+            }
+            else {
+                return HUGE_NEGATIVE;
+            }
+        }
+        return a_gameState.getGameScore();
     }
 
     public boolean finishRollout(StateObservation rollerState, int depth)
@@ -234,8 +231,8 @@ public class SingleTreeNode
                 }
 
                 double childValue = children[i].nVisits;
-                childValue = Utils.noise(childValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
-                if (childValue > bestValue) {
+                //childValue = Utils.noise(childValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
+                if (childValue > bestValue || (childValue == bestValue && m_rnd.nextBoolean())) {
                     bestValue = childValue;
                     selected = i;
                 }
