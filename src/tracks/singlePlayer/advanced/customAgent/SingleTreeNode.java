@@ -22,8 +22,11 @@ public class SingleTreeNode
 
     public int num_actions;
     Types.ACTIONS[] actions;
-    public int ROLLOUT_DEPTH = 15;
-    public double K = Math.sqrt(2);
+
+    //MCTS Parameters
+    public int ROLLOUT_DEPTH = 25; //How far do we look ahead in a simulation?
+    public int EXPANSION_DEPTH = 15; //How deep may the tree be at best?
+    public double K = Math.sqrt(2); //Exploration parameter, the larger it is, the more exploration we do
 
     public StateObservation rootState;
 
@@ -58,9 +61,9 @@ public class SingleTreeNode
             StateObservation state = rootState.copy();
 
             ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
-            SingleTreeNode selected = treePolicy(state);
-            double delta = selected.rollOut(state);
-            backUp(selected, delta);
+            SingleTreeNode selected = treePolicy(state); //Find a node to expand and expand it
+            double delta = selected.rollOut(state); //roll out the node
+            backUp(selected, delta); //backpropagate
 
             numIters++;
             acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
@@ -71,20 +74,18 @@ public class SingleTreeNode
 
     public SingleTreeNode treePolicy(StateObservation state) {
 
-        SingleTreeNode cur = this;
-
-        while (!state.isGameOver() && cur.m_depth < ROLLOUT_DEPTH)
+        SingleTreeNode curNode = this;
+        while (!state.isGameOver() && curNode.m_depth < EXPANSION_DEPTH)
         {
-            if (cur.notFullyExpanded()) {
-                return cur.expand(state);
+            if (curNode.notFullyExpanded()) {
+                return curNode.expand(state);
 
             } else {
-                SingleTreeNode next = cur.uct(state);
-                cur = next;
+                SingleTreeNode next = curNode.uct(state);
+                curNode = next;
             }
         }
-
-        return cur;
+        return curNode;
     }
 
     //Expands the tree
@@ -119,27 +120,28 @@ public class SingleTreeNode
             double hvVal = children[i].totValue;
             double childValue =  hvVal / (children[i].nVisits + this.epsilon);
 
+            //"Number of wins" estimation
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
             //System.out.println("norm child value: " + childValue);
 
             double uctValue = childValue +
                     K * Math.sqrt(Math.log(this.nVisits + 1) / (children[i].nVisits + this.epsilon));
 
-            uctValue = Utils.noise(uctValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
+            //uctValue = Utils.noise(uctValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
 
             // small sampleRandom numbers: break ties in unexpanded nodes
-            if (uctValue > bestValue) {
+            if (uctValue > bestValue || (uctValue == bestValue && this.m_rnd.nextBoolean())) {
                 selection = i;
                 bestValue = uctValue;
             }
         }
+
         if (selection == -1)
         {
             throw new RuntimeException("Warning! returning null: " + bestValue + " : " + this.children.length + " " +
             + bounds[0] + " " + bounds[1]);
         }
-        //System.out.println(selected.childIdx);
-        //System.out.println(selection);
+
         //Roll the state:
         state.advance(actions[selection]);
 
@@ -152,7 +154,6 @@ public class SingleTreeNode
         int thisDepth = this.m_depth;
 
         while (!finishRollout(state,thisDepth)) {
-
             int action = m_rnd.nextInt(num_actions);
             state.advance(actions[action]);
             thisDepth++;
