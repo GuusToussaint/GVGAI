@@ -42,12 +42,13 @@ public class SingleCustomPlayer
      */
     public void init(StateObservation a_gameState)
     {
-        //if there is no root create one
+        //m_root = new SingleTreeNode(m_rnd, num_actions, actions);
+        //m_root.rootState = a_gameState;
+        //Set the game observation to a newly root node.
         if (m_root == null)
         {
             m_root = new SingleTreeNode(m_rnd, num_actions, actions);
         }
-        //give it the latest game state
         m_root.rootState = a_gameState;
     }
 
@@ -63,9 +64,9 @@ public class SingleCustomPlayer
 
         //Determine the best action to take and return it.
         int action = m_root.mostVisitedAction();
-        m_root = m_root.children[action]; //update the root to the selection
-        m_root.parent = null; //remove the parent
-        m_root.updateDepth(); //update the depth of the new tree
+        m_root = m_root.children[action];
+        m_root.parent = null;
+        m_root.updateDepth();
         //int action = m_root.bestAction();
         return action;
     }
