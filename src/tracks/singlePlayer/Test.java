@@ -24,6 +24,7 @@ public class Test {
         String sampleRSController = "tracks.singlePlayer.advanced.sampleRS.Agent";
         String sampleRHEAController = "tracks.singlePlayer.advanced.sampleRHEA.Agent";
 		String sampleOLETSController = "tracks.singlePlayer.advanced.olets.Agent";
+		String customAgentController = "tracks.singlePlayer.advanced.customAgent.Agent";
 
 		//Load available games
 		String spGamesCollection =  "examples/all_games_sp.csv";
@@ -46,10 +47,14 @@ public class Test {
 						// executed. null if not to save.
 
 		// 1. This starts a game, in a level, played by a human.
-		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
+		//ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-//		ArcadeMachine.runOneGame(game, level1, visuals, sampleRHEAController, recordActionsFile, seed, 0);
+		//ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed, 0);
+		//ArcadeMachine.runOneGame(game, level1, visuals, sampleRSController, recordActionsFile, seed, 0);
+		//ArcadeMachine.runOneGame(game, level1, visuals, sampleRHEAController, recordActionsFile, seed, 0);
+		//ArcadeMachine.runOneGame(game, level1, visuals, sampleOLETSController, recordActionsFile, seed, 0);
+		ArcadeMachine.runOneGame(game, level1, visuals, customAgentController, recordActionsFile, seed, 0);
 
 
 		// 3. This replays a game from an action file previously recorded
@@ -67,23 +72,21 @@ public class Test {
 //		}
 
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
-//		int N = games.length, L = 2, M = 1;
-//		boolean saveActions = false;
-//		String[] levels = new String[L];
-//		String[] actionFiles = new String[L*M];
-//		for(int i = 0; i < N; ++i)
-//		{
-//			int actionIdx = 0;
-//			game = games[i][0];
-//			gameName = games[i][1];
-//			for(int j = 0; j < L; ++j){
-//				levels[j] = game.replace(gameName, gameName + "_lvl" + j);
-//				if(saveActions) for(int k = 0; k < M; ++k)
-//				actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
-//			}
-//			ArcadeMachine.runGames(game, levels, M, sampleRHEAController, saveActions? actionFiles:null);
-//		}
-
-
+		/*int N = games.length, L = 2, M = 10;
+		boolean saveActions = false;
+		String[] levels = new String[L];
+		String[] actionFiles = new String[L*M];
+		for(int i = 0; i < N; ++i)
+		{
+			int actionIdx = 0;
+			game = games[i][0];
+			gameName = games[i][1];
+			for(int j = 0; j < L; ++j){
+				levels[j] = game.replace(gameName, gameName + "_lvl" + j);
+				if(saveActions) for(int k = 0; k < M; ++k)
+				actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
+			}
+			ArcadeMachine.runGames(game, levels, M, customAgentController, saveActions? actionFiles:null);
+		}*/
     }
 }
