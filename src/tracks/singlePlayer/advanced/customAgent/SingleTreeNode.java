@@ -90,23 +90,21 @@ public class SingleTreeNode
 
     //Expands the tree
     public SingleTreeNode expand(StateObservation state) {
-
-        int bestAction = 0;
-        double bestValue = -1;
-
-        for (int i = 0; i < children.length; i++) {
-            double x = m_rnd.nextDouble();
-            if (x > bestValue && children[i] == null) {
-                bestAction = i;
-                bestValue = x;
+        int[] posChild = new int[children.length - (nVisits-1)];
+        int options = 0;
+        for (int i = 0; i < children.length; i++){
+            if (children[i] == null) {
+                posChild[options] = i;
+                options += 1;
             }
         }
+        int selection = posChild[m_rnd.nextInt(options)];
 
         //Roll the state
-        state.advance(actions[bestAction]);
+        state.advance(actions[selection]);
 
         SingleTreeNode tn = new SingleTreeNode(this, this.m_rnd, num_actions, actions);
-        children[bestAction] = tn;
+        children[selection] = tn;
         return tn;
     }
 
@@ -121,7 +119,6 @@ public class SingleTreeNode
 
             //"Number of wins" estimation
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-            //System.out.println("norm child value: " + childValue);
 
             double uctValue = childValue +
                     K * Math.sqrt(Math.log(this.nVisits + 1) / (children[i].nVisits));
@@ -231,8 +228,7 @@ public class SingleTreeNode
                 }
 
                 double childValue = children[i].nVisits;
-                //childValue = Utils.noise(childValue, this.epsilon, this.m_rnd.nextDouble());     //break ties randomly
-                if (childValue > bestValue || (childValue == bestValue && m_rnd.nextBoolean())) {
+                if (childValue > bestValue) {
                     bestValue = childValue;
                     selected = i;
                 }
@@ -242,11 +238,6 @@ public class SingleTreeNode
         if (selected == -1)
         {
             System.out.println("Unexpected selection!");
-            System.out.println(children[0]);
-            System.out.println(children.length);
-            System.out.println(this.notFullyExpanded());
-            System.out.println(this.m_depth);
-            selected = 0;
         }else if(allEqual)
         {
             //If all are equal, we opt to choose for the one with the best Q.
