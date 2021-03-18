@@ -54,7 +54,7 @@ public class Test {
 		//ArcadeMachine.runOneGame(game, level1, visuals, sampleRSController, recordActionsFile, seed, 0);
 		//ArcadeMachine.runOneGame(game, level1, visuals, sampleRHEAController, recordActionsFile, seed, 0);
 		//ArcadeMachine.runOneGame(game, level1, visuals, sampleOLETSController, recordActionsFile, seed, 0);
-		ArcadeMachine.runOneGame(game, level1, visuals, customAgentController, recordActionsFile, seed, 0);
+//		ArcadeMachine.runOneGame(game, level1, visuals, customAgentController, recordActionsFile, seed, 0);
 
 
 		// 3. This replays a game from an action file previously recorded
@@ -72,7 +72,7 @@ public class Test {
 //		}
 
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
-		/*int N = games.length, L = 2, M = 10;
+		int N = 1, L = 1, M = 10;
 		boolean saveActions = false;
 		String[] levels = new String[L];
 		String[] actionFiles = new String[L*M];
@@ -87,6 +87,6 @@ public class Test {
 				actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
 			}
 			ArcadeMachine.runGames(game, levels, M, customAgentController, saveActions? actionFiles:null);
-		}*/
+		}
     }
 }
