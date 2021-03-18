@@ -113,7 +113,6 @@ public class SingleTreeNode
     //Applies Upper Confidence Bound for Trees
     public SingleTreeNode uct(StateObservation state) {
         int selection = -1;
-        SingleTreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
         for (int i = 0; i < children.length; i++)
         {
