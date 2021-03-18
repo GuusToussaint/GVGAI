@@ -27,7 +27,7 @@ public class Test {
 		String customAgentController = "tracks.singlePlayer.advanced.customAgent.Agent";
 
 		//Load available games
-		String spGamesCollection =  "examples/all_games_sp.csv";
+		String spGamesCollection =  "src/tracks/singlePlayer/gameSelection.csv";
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		//Game settings
