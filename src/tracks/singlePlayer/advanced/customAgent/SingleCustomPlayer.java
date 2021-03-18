@@ -26,6 +26,7 @@ public class SingleCustomPlayer
      */
     public Random m_rnd;
 
+    private boolean saveTree = true;
     public int num_actions;
     public Types.ACTIONS[] actions;
 
@@ -64,10 +65,13 @@ public class SingleCustomPlayer
 
         //Determine the best action to take and return it.
         int action = m_root.mostVisitedAction();
-        m_root = m_root.children[action];
-        m_root.parent = null;
-        m_root.updateDepth();
-        //int action = m_root.bestAction();
+        if(saveTree){
+            m_root = m_root.children[action];
+            m_root.parent = null;
+            m_root.updateDepth();
+        }else{
+            m_root = null;
+        }
         return action;
     }
 
