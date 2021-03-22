@@ -24,7 +24,7 @@ public class Test {
         String sampleRSController = "tracks.singlePlayer.advanced.sampleRS.Agent";
         String sampleRHEAController = "tracks.singlePlayer.advanced.sampleRHEA.Agent";
 		String sampleOLETSController = "tracks.singlePlayer.advanced.olets.Agent";
-		String customAgentController = "tracks.singlePlayer.advanced.customAgent.Agent";
+		String customAgentController = "tracks.singlePlayer.advanced.student.Agent";
 
 		//Load available games
 		String spGamesCollection =  "src/tracks/singlePlayer/gameSelection.csv";

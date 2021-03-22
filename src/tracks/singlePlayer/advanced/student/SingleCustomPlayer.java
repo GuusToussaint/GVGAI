@@ -1,4 +1,4 @@
-package tracks.singlePlayer.advanced.customAgent;
+package tracks.singlePlayer.advanced.student;
 
 import core.game.StateObservation;
 import ontology.Types;
