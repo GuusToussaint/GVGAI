@@ -5,6 +5,7 @@ import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class SingleTreeNode
@@ -24,7 +25,7 @@ public class SingleTreeNode
     Types.ACTIONS[] actions;
 
     //MCTS Parameters
-    public int ROLLOUT_DEPTH = 25; //How far do we look ahead in a simulation?
+    public int ROLLOUT_DEPTH = 40; //How far do we look ahead in a simulation?
     public int EXPANSION_DEPTH = 15; //How deep may the tree be at best?
     public double K = Math.sqrt(2); //Exploration parameter, the larger it is, the more exploration we do
 
@@ -49,27 +50,48 @@ public class SingleTreeNode
     }
 
     //Searches for the best move while there is still time (I think based on game clock ticks)
-    public void mctsSearch(ElapsedCpuTimer elapsedTimer) {
+    public int mctsSearch(ElapsedCpuTimer elapsedTimer) {
         double avgTimeTaken = 0;
+        double worstTimeTaken = 0;
         double acumTimeTaken = 0;
         long remaining = elapsedTimer.remainingTimeMillis();
         int numIters = 0;
+        int numOfRollouts = 1;
 
+        // adding some overhead since we don't want our agent to be disqualified
         int remainingLimit = 5;
+
         //While there is still enough time
-        while(remaining > 2 * avgTimeTaken && remaining > remainingLimit){
+        while((remaining - remainingLimit) > (2 * worstTimeTaken)){
+            ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+
             StateObservation state = rootState.copy();
 
-            ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
-            SingleTreeNode selected = treePolicy(state); //Find a node to expand and expand it
-            double delta = selected.rollOut(state); //roll out the node
-            backUp(selected, delta); //backpropagate
+
+//            if(numIters > 2){
+//                numOfRollouts = Integer.min(5, (int) (remaining / avgTimeTaken));
+//            }
+
+
+            SingleTreeNode selected = treePolicy(state);
+
+            double[] delta = new double[numOfRollouts];
+            for(int i = 0; i < delta.length; i++){
+                delta[i] = selected.rollOut(state);
+            }
+
+            double min = Arrays.stream(delta).min().getAsDouble();
+            double max = Arrays.stream(delta).max().getAsDouble();
+            double sum = Arrays.stream(delta).sum();
+            backUp(selected, min, max, sum);
 
             numIters++;
             acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
             avgTimeTaken  = acumTimeTaken/numIters;
+            worstTimeTaken = Double.max(avgTimeTaken, worstTimeTaken);
             remaining = elapsedTimer.remainingTimeMillis();
         }
+        return numIters;
     }
 
     public SingleTreeNode treePolicy(StateObservation state) {
@@ -90,7 +112,7 @@ public class SingleTreeNode
 
     //Expands the tree
     public SingleTreeNode expand(StateObservation state) {
-        int[] posChild = new int[children.length - (nVisits-1)];
+        int[] posChild = new int[children.length];
         int options = 0;
         for (int i = 0; i < children.length; i++){
             if (children[i] == null) {
@@ -192,18 +214,18 @@ public class SingleTreeNode
     }
 
     //Handles backpropagation
-    public void backUp(SingleTreeNode node, double result)
+    public void backUp(SingleTreeNode node, double min, double max, double sum)
     {
         SingleTreeNode n = node;
         while(n != null)
         {
             n.nVisits++;
-            n.totValue += result;
-            if (result < n.bounds[0]) {
-                n.bounds[0] = result;
+            n.totValue += sum;
+            if (min < n.bounds[0]) {
+                n.bounds[0] = min;
             }
-            if (result > n.bounds[1]) {
-                n.bounds[1] = result;
+            if (max > n.bounds[1]) {
+                n.bounds[1] = max;
             }
             n = n.parent;
         }

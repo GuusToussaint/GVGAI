@@ -491,13 +491,13 @@ public class ArcadeMachine {
 		}
 
 		// Get players stats
-		for (Player player : players)
-		    if (player != null) {
-			int id = player.getPlayerID();
-			scores[id].add(score[id]);
-			victories[id].add(toPlay.getWinner(id) == Types.WINNER.PLAYER_WINS ? 1 : 0);
-		    }
-
+		for (Player player : players) {
+			if (player != null) {
+				int id = player.getPlayerID();
+				scores[id].add(score[id]);
+				victories[id].add(toPlay.getWinner(id) == Types.WINNER.PLAYER_WINS ? 1 : 0);
+			}
+		}
 		// reset the game.
 		toPlay.reset();
 	    }
@@ -514,8 +514,8 @@ public class ArcadeMachine {
 		sc += ", ";
 	    }
 	}
-	System.out.println("Results in game " + game_file + ", " + vict + " , " + sc);
-	 	//+ " , " + performance.mean());
+	System.out.println("Results in game " + game_file + ", " + vict + " , " + sc
+	 	+ " , " + performance.mean());
     }
 
     /**

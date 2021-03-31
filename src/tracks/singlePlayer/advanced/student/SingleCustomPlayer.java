@@ -26,7 +26,6 @@ public class SingleCustomPlayer
      */
     public Random m_rnd;
 
-    private boolean saveTree = true;
     public int num_actions;
     public Types.ACTIONS[] actions;
 
@@ -61,10 +60,11 @@ public class SingleCustomPlayer
     public int run(ElapsedCpuTimer elapsedTimer)
     {
         //Do the search within the available time.
-        m_root.mctsSearch(elapsedTimer);
+        int iters = m_root.mctsSearch(elapsedTimer);
 
         //Determine the best action to take and return it.
         int action = m_root.mostVisitedAction();
+        final boolean saveTree = false;
         if(saveTree){
             m_root = m_root.children[action];
             m_root.parent = null;
