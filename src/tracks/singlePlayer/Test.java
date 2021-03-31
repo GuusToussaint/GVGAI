@@ -1,10 +1,13 @@
 package tracks.singlePlayer;
 
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.Random;
 
 import core.logging.Logger;
 import tools.Utils;
+import tools.com.google.gson.JsonArray;
+import tools.com.google.gson.JsonObject;
 import tracks.ArcadeMachine;
 
 /**
@@ -17,47 +20,70 @@ public class Test {
 
 		// Available tracks:
 		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
-		String doNothingController = "tracks.singlePlayer.simple.doNothing.Agent";
-		String sampleOneStepController = "tracks.singlePlayer.simple.sampleonesteplookahead.Agent";
-		String sampleFlatMCTSController = "tracks.singlePlayer.simple.greedyTreeSearch.Agent";
-
 		String sampleMCTSController = "tracks.singlePlayer.advanced.sampleMCTS.Agent";
-        String sampleRSController = "tracks.singlePlayer.advanced.sampleRS.Agent";
-        String sampleRHEAController = "tracks.singlePlayer.advanced.sampleRHEA.Agent";
-		String sampleOLETSController = "tracks.singlePlayer.advanced.olets.Agent";
-		String customAgentController = "tracks.singlePlayer.advanced.student.Agent";
 
 		//Load available games
 		String spGamesCollection =  "src/tracks/singlePlayer/gameSelection.csv";
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		// Run experiments
-		int N = 1, L = 1, M = 100;
+		if (args.length != 1){
+			System.out.println("Incorrect number of parameters");
+			System.exit(-1);
+		}
+
+
+		int gameIndex = Integer.parseInt(args[0]);
+		int L = 1, M = 2;
 		boolean saveActions = false;
 		String[] levels = new String[L];
 		String[] actionFiles = new String[L*M];
-		String[] agentsToCompete = new String[]{customAgentController, sampleMCTSController}; //sampleOLETSController
-		String gameName = null;
-		String game = null;
-
-		for (String currentAgent : agentsToCompete) {
-			System.out.println("running experiments for agent " + currentAgent);
-			for (int i = 0; i < N; ++i) {
-				int actionIdx = 0;
-				game = games[i][0];
-				gameName = games[i][1];
-				for (int j = 0; j < L; ++j) {
-					levels[j] = game.replace(gameName, gameName + "_lvl" + j);
-					if (saveActions){
-						for (int k = 0; k < M; ++k){
-							System.out.println("raar");
-							actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
-						}
-					}
-				}
-				ArcadeMachine.runGames(game, levels, M, currentAgent, saveActions ? actionFiles : null);
+		String[] agentsToCompete = new String[10]; //sampleOLETSController
+		int agentsAdded = 0;
+		for (String saveTree : new String[]{"true", "false"}){
+			for (String expansionDepth : new String[]{"5", "10", "15", "20"}){
+				agentsToCompete[agentsAdded] = "tracks.singlePlayer.advanced.student.Agent_ST_" + saveTree + "_ED_" + expansionDepth;
+				agentsAdded++;
 			}
 		}
+		agentsToCompete[agentsAdded] = sampleRandomController;
+		agentsToCompete[agentsAdded+1] = sampleMCTSController;
+
+		String game = games[gameIndex][0];
+		String gameName = games[gameIndex][1];
+		JsonObject final_results = new JsonObject();
+
+		for (String currentAgent : agentsToCompete) {
+			JsonArray scores = new JsonArray();
+
+			String level = game.replace(gameName, gameName + "_lvl" + 0);
+
+			System.out.println("running experiments for agent " + currentAgent);
+			System.out.println("In game " + gameName);
+
+			for (int g = 0; g < M; ++g){
+				double[] result = ArcadeMachine.runOneGame(game, level, false, currentAgent, null, new Random().nextInt(), 0);
+				JsonObject result_object = new JsonObject();
+				result_object.addProperty("result", result[0]);
+				result_object.addProperty("score", result[1]);
+				result_object.addProperty("timesteps", result[2]);
+				scores.add(result_object);
+			}
+			final_results.add(currentAgent, scores);
+		}
+
+		try{
+			FileWriter results_file = new FileWriter( gameName + "_results.json");
+			results_file.write(final_results.toString());
+			results_file.close();
+		}catch(Exception e){
+			System.out.println("an error occured when creating the results file");
+			e.printStackTrace();
+		}finally {
+			System.out.println("Here are the results:");
+			System.out.println(final_results.toString());
+		}
+
 
     }
 }

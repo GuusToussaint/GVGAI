@@ -15,7 +15,7 @@ import java.util.Random;
  * Time: 21:45
  * This is an implementation of MCTS UCT
  */
-public class Agent extends AbstractPlayer {
+public class Agent_ST_true_ED_15 extends AbstractPlayer {
     public int num_actions;
     public Types.ACTIONS[] actions;
 
@@ -26,7 +26,7 @@ public class Agent extends AbstractPlayer {
      * @param so state observation of the current game.
      * @param elapsedTimer Timer for the controller creation.
      */
-    public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer)
+    public Agent_ST_true_ED_15(StateObservation so, ElapsedCpuTimer elapsedTimer)
     {
         //Get the actions in a static array.
         ArrayList<Types.ACTIONS> act = so.getAvailableActions();
@@ -57,7 +57,7 @@ public class Agent extends AbstractPlayer {
 
         //Set the state observation object as the new root of the tree.
         Boolean saveTree = true;
-        int expansionDepth = 10;
+        int expansionDepth = 15;
 
         customPlayer.init(stateObs, saveTree, expansionDepth);
 

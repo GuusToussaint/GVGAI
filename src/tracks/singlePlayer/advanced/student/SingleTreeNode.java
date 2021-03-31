@@ -26,20 +26,24 @@ public class SingleTreeNode
 
     //MCTS Parameters
     public int ROLLOUT_DEPTH = 40; //How far do we look ahead in a simulation?
-    public int EXPANSION_DEPTH = 15; //How deep may the tree be at best?
+    public int EXPANSION_DEPTH; //How deep may the tree be at best?
     public double K = Math.sqrt(2); //Exploration parameter, the larger it is, the more exploration we do
 
     public StateObservation rootState;
 
-    public SingleTreeNode(Random rnd, int num_actions, Types.ACTIONS[] actions) {
-        this(null, rnd, num_actions, actions);
+    public SingleTreeNode(Random rnd, int num_actions, Types.ACTIONS[] actions, int expansion_depth) {
+        this(null, rnd, num_actions, actions, expansion_depth);
+
+
     }
 
-    public SingleTreeNode(SingleTreeNode parent, Random rnd, int num_actions, Types.ACTIONS[] actions) {
+    public SingleTreeNode(SingleTreeNode parent, Random rnd, int num_actions, Types.ACTIONS[] actions,
+                          int expansion_depth) {
         this.parent = parent;
         this.m_rnd = rnd;
         this.num_actions = num_actions;
         this.actions = actions;
+        this.EXPANSION_DEPTH = expansion_depth;
         children = new SingleTreeNode[num_actions];
         totValue = 0.0;
 
@@ -125,7 +129,7 @@ public class SingleTreeNode
         //Roll the state
         state.advance(actions[selection]);
 
-        SingleTreeNode tn = new SingleTreeNode(this, this.m_rnd, num_actions, actions);
+        SingleTreeNode tn = new SingleTreeNode(this, this.m_rnd, num_actions, actions, this.EXPANSION_DEPTH);
         children[selection] = tn;
         return tn;
     }

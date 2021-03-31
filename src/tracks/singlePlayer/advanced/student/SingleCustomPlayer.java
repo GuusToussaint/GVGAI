@@ -26,6 +26,8 @@ public class SingleCustomPlayer
      */
     public Random m_rnd;
 
+    public Boolean save_tree;
+
     public int num_actions;
     public Types.ACTIONS[] actions;
 
@@ -40,14 +42,15 @@ public class SingleCustomPlayer
      * Inits the tree with the new observation state in the root.
      * @param a_gameState current state of the game.
      */
-    public void init(StateObservation a_gameState)
+    public void init(StateObservation a_gameState, Boolean saveTree, int expansionDepth)
     {
+        save_tree = saveTree;
         //m_root = new SingleTreeNode(m_rnd, num_actions, actions);
         //m_root.rootState = a_gameState;
         //Set the game observation to a newly root node.
         if (m_root == null)
         {
-            m_root = new SingleTreeNode(m_rnd, num_actions, actions);
+            m_root = new SingleTreeNode(m_rnd, num_actions, actions, expansionDepth);
         }
         m_root.rootState = a_gameState;
     }
@@ -64,7 +67,7 @@ public class SingleCustomPlayer
 
         //Determine the best action to take and return it.
         int action = m_root.mostVisitedAction();
-        final boolean saveTree = false;
+        final boolean saveTree = true;
         if(saveTree){
             m_root = m_root.children[action];
             m_root.parent = null;
