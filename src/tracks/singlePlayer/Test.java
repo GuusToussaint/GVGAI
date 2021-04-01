@@ -34,7 +34,7 @@ public class Test {
 
 
 		int gameIndex = Integer.parseInt(args[0]);
-		int L = 1, M = 2;
+		int L = 1, M = 50;
 		boolean saveActions = false;
 		String[] levels = new String[L];
 		String[] actionFiles = new String[L*M];
